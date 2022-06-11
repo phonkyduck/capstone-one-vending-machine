@@ -8,15 +8,15 @@ import java.util.Scanner;
 
 public class Inventory {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    Map<String, String> itemName = new HashMap<>();
+    Map<String, Double> itemPrices = new HashMap<>();
+    Map<String, String> itemType = new HashMap<>();
 
-        File inventoryLoader = new File("vendingmachine.csv");
+    public void InventoryLoader() {
 
-        Map<String, String> itemName = new HashMap<>();
-        Map<String, Double> itemPrices = new HashMap<>();
-        Map<String, String> itemType = new HashMap<>();
+        File inventoryList = new File("vendingmachine.csv");
 
-        try (Scanner inventoryInput = new Scanner(inventoryLoader)) {
+        try (Scanner inventoryInput = new Scanner(inventoryList)) {
             while (inventoryInput.hasNextLine()) {
                 String lineOfInput = inventoryInput.nextLine();
                 String[] itemDetails = lineOfInput.split("|");
@@ -28,11 +28,16 @@ public class Inventory {
             System.err.println("The file does not exist.");
         }
 
-        public void displayItems(){
+    }
+    public void displayItems(){
 
-            for (Map.Entry<String,String> item: itemName.entrySet()) {
-                System.out.println(item.getKey() + " " + item.getValue());
-            }
+        for (Map.Entry<String,String> item: itemName.entrySet()) {
+            System.out.println(item.getKey() + " " + item.getValue());
         }
     }
+
+    public static void main (String[] args) {
+        System.out.println();
+    }
+
 }
