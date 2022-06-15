@@ -2,6 +2,7 @@ package com.techelevator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 public class Inventory {
 
     Map<String, String> itemName = new HashMap<>();
-    Map<String, Double> itemPrices = new HashMap<>();
+    Map<String, BigDecimal> itemPrices = new HashMap<>();
     Map<String, String> itemType = new HashMap<>();
 
     public void InventoryLoader() {
@@ -21,7 +22,7 @@ public class Inventory {
                 String lineOfInput = inventoryInput.nextLine();
                 String[] itemDetails = lineOfInput.split("|");
                 itemName.put(itemDetails[0], itemDetails[1]);
-                itemPrices.put(itemDetails[0], Double.parseDouble(itemDetails[2]));
+                itemPrices.put(itemDetails[0], BigDecimal.valueOf(Double.parseDouble(itemDetails[2])));
                 itemType.put(itemDetails[0], itemDetails[3]);
             }
         } catch (FileNotFoundException e) {
@@ -29,15 +30,10 @@ public class Inventory {
         }
 
     }
-    public void displayItems(){
 
-        for (Map.Entry<String,String> item: itemName.entrySet()) {
+    public void displayItems(){
+        for (Map.Entry<String, String> item: itemName.entrySet()) {
             System.out.println(item.getKey() + " " + item.getValue());
         }
     }
-
-    public static void main (String[] args) {
-        System.out.println();
-    }
-
 }
