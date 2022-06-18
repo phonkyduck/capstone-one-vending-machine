@@ -9,6 +9,10 @@ import java.util.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Date;
+import java.util.Calendar;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 
 public class VendingMachineCLI {
 
@@ -29,6 +33,11 @@ public class VendingMachineCLI {
 	private static final String FEED_MENU_RETURN = "Return to Purchase Menu";
 	private static final String[] FEED_MENU_OPTIONS = {FEED_MENU_INSERT_ONE_DOLLAR, FEED_MENU_INSERT_TWO_DOLLARS, FEED_MENU_INSERT_FIVE_DOLLARS, FEED_MENU_INSERT_TEN_DOLLARS, FEED_MENU_RETURN};
 
+	private static final BigDecimal QUARTER = BigDecimal.valueOf(.25);
+	private static final BigDecimal DIME = BigDecimal.valueOf(.10);
+	private static final BigDecimal NICKEL = BigDecimal.valueOf(.05);
+
+
 	private Menu menu;
 
 	public VendingMachineCLI(Menu menu) {
@@ -41,12 +50,13 @@ public class VendingMachineCLI {
 		Inventory inv = new Inventory();
 		File file = new File("vendingmachine.csv");
 		Map<String, VendingItems> itemsForSale = inv.inventoryLoader();
-		BillBox bill;
 		BigDecimal totalSales;
-		BigDecimal customerBalance = BigDecimal.valueOf(10);
+		BigDecimal customerBalance = BigDecimal.valueOf(0);
 		Scanner vendingChoice = new Scanner(System.in);
 		File auditLog = new File("SalesLog.txt");
 		PrintWriter purchaseAuditor = new PrintWriter(new FileOutputStream(auditLog, true));
+		DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
 //		Menu purchaseMenu = new Menu(customerBalance, auditLog); //input is user inputting money, output is writing the audit log
 
 
@@ -59,31 +69,38 @@ public class VendingMachineCLI {
 			} else if (choice.equals(MAIN_MENU_OPTION_PURCHASE)) {
 
 				while (true) {
-					System.out.println("Current Money Provided: $" + customerBalance);
+					System.out.println("Current Money Provided: $" + String.format("%.2f", customerBalance));
 					String choicePurchaseMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
 
 					if (choicePurchaseMenu.equals(PURCHASE_MENU_OPTION_FEED_MONEY)) {
 						while (true) {
-							System.out.println("Current Money Provided: $" + customerBalance);
+							BigDecimal startingBalance = customerBalance;
+							System.out.println("Current Money Provided: $" + String.format("%.2f", customerBalance));
 							String choiceFeedMoneyMenu = (String) menu.getChoiceFromOptions(FEED_MENU_OPTIONS);
 
 							if (choiceFeedMoneyMenu.equals(FEED_MENU_INSERT_ONE_DOLLAR)) {
 								customerBalance = customerBalance.add(BigDecimal.valueOf(1));
+								purchaseAuditor.println(dateTimeFormat.format(now) + "FEED MONEY: " + startingBalance + " " + customerBalance);
 
 							} else if (choiceFeedMoneyMenu.equals(FEED_MENU_INSERT_TWO_DOLLARS)) {
 								customerBalance = customerBalance.add(BigDecimal.valueOf(2));
+								purchaseAuditor.println(dateTimeFormat.format(now) + "FEED MONEY: " + startingBalance + " " + customerBalance);
 
 							} else if (choiceFeedMoneyMenu.equals(FEED_MENU_INSERT_FIVE_DOLLARS)) {
 								customerBalance = customerBalance.add(BigDecimal.valueOf(5));
+								purchaseAuditor.println(dateTimeFormat.format(now) + "FEED MONEY: " + startingBalance + " " + customerBalance);
 
 							} else if (choiceFeedMoneyMenu.equals(FEED_MENU_INSERT_TEN_DOLLARS)) {
 								customerBalance = customerBalance.add(BigDecimal.valueOf(10));
+								purchaseAuditor.println(dateTimeFormat.format(now) + "FEED MONEY: " + startingBalance + " " + customerBalance);
 
 							} else if (choiceFeedMoneyMenu.equals(FEED_MENU_RETURN)) {
-								String choiceFeedMenu = (String) menu.getChoiceFromOptions(PURCHASE_MENU_OPTIONS);
+								purchaseAuditor.println(dateTimeFormat.format(now) + "FEED MONEY: " + startingBalance + " " + customerBalance);
+								break;
 							}
 						}
 					} else if (choicePurchaseMenu.equals(PURCHASE_MENU_OPTION_SELECT_PRODUCT)) {
+						BigDecimal startingBalance = customerBalance;
 						inv.displayItems(itemsForSale);
 						System.out.println("\n" + "Please select a product by selecting its slot ID (A1, B2, etc)");
 						String itemSelected = vendingChoice.nextLine();
@@ -97,12 +114,12 @@ public class VendingMachineCLI {
 						} else if (itemsForSale.get(itemSelected).getPrice().doubleValue() > customerBalance.doubleValue()) {
 							System.out.println("Insufficient Funds. Please insert more money.");
 
-						} else if (itemsForSale.get(itemSelected).equals(itemsForSale.containsValue(itemSelected))) {
+						} else if (itemsForSale.containsKey(itemSelected)) {
 							customerBalance = customerBalance.subtract(itemsForSale.get(itemSelected).getPrice());
 							itemsForSale.get(itemSelected).setItemQuantity(itemsForSale.get(itemSelected).getItemQuantity() - 1);
-							System.out.println("Thank you for purchasing " + itemsForSale.get(itemSelected) + " for $" + itemsForSale.get(itemSelected).getPrice() + ", your new balance is $" + String.format("%.2f", customerBalance));
+							System.out.println("Thank you for purchasing " + itemsForSale.get(itemSelected) + " for $" + String.format("%.2f", itemsForSale.get(itemSelected).getPrice()) + ", your new balance is $" + String.format("%.2f", customerBalance));
 							itemsForSale.get(itemSelected).vendingMessage();
-
+							purchaseAuditor.println(dateTimeFormat.format(now) + itemsForSale.get(itemSelected).getName() + itemsForSale.get(itemSelected).getItemSlot() + startingBalance + " " + customerBalance);
 
 							//reduce item quantity by 1
 							//print the item name, cost, and the money remaining, and print the item message
@@ -110,8 +127,29 @@ public class VendingMachineCLI {
 
 
 						} else if (choicePurchaseMenu.equals(PURCHASE_MENU_OPTION_FINISH_TRANSACTION)) {
-							//implement finish transaction functionality
+//							implement finish transaction functionality
+							int quarterCounter = 0;
+							int dimeCounter = 0;
+							int nickelCounter = 0;
+							BigDecimal customerChange = customerBalance;
 
+							if (customerBalance.doubleValue() > 0) {
+								for (int i = 0; i < customerBalance.doubleValue(); i++) {
+									if (customerBalance.doubleValue() >= QUARTER.doubleValue()) {
+										customerBalance = customerBalance.subtract(QUARTER);
+										quarterCounter++;
+									} else if (customerBalance.doubleValue() >= DIME.doubleValue()) {
+										customerBalance = customerBalance.subtract(DIME);
+										dimeCounter++;
+									} else if (customerBalance.doubleValue() >= NICKEL.doubleValue()) {
+										customerBalance = customerBalance.subtract(NICKEL);
+										nickelCounter++;
+									}
+								}
+								System.out.println("Thank you for shopping with us! \nYour change is $" + customerChange + ". Please collect your " + quarterCounter + " quarters, " + dimeCounter + " dimes, and " + nickelCounter + " nickels. \n Have a great day!" );
+							} else if(customerBalance.doubleValue() == 0){
+								System.out.println("Your balance is $0. Thank you for shopping with us!");
+							}
 						}
 					}
 				}

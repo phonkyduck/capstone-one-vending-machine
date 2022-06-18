@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 public class Inventory {
 
@@ -13,7 +14,7 @@ public class Inventory {
 //    Map<String, BigDecimal> itemPrices = new HashMap<>();
 //    Map<String, String> itemType = new HashMap<>();
 
-    Map<String, VendingItems> itemsForSale = new HashMap<>();
+    Map<String, VendingItems> itemsForSale = new TreeMap<>();
 
     public Map<String, VendingItems> inventoryLoader() {
 
