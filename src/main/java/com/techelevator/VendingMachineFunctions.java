@@ -10,4 +10,6 @@ public class VendingMachineFunctions {
         currentBalance = currentBalance.add(bill.getBillDenomination());
     }
 
+
+
 }

@@ -18,9 +18,14 @@ public abstract class VendingItems {
         this.itemSlot = itemSlot;
         this.itemType = itemType;
         this.itemQuantity = itemQuantity;
-
-
     }
+
+    //method
+    public void vendingMessage(){
+        System.out.println(vendingPhrase);
+    }
+
+
     //getters
     public String getName() {
         return name;
