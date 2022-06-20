@@ -50,7 +50,6 @@ public class VendingMachineCLI {
 		Inventory inv = new Inventory();
 		File file = new File("vendingmachine.csv");
 		Map<String, VendingItems> itemsForSale = inv.inventoryLoader();
-		BigDecimal totalSales;
 		BigDecimal customerBalance = BigDecimal.valueOf(0);
 		Scanner vendingChoice = new Scanner(System.in);
 		File auditLog = new File("src/main/java/com/techelevator/SalesLog.txt");
@@ -58,7 +57,6 @@ public class VendingMachineCLI {
 		DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
 		AuditLog activityLog = new AuditLog();
-//		Menu purchaseMenu = new Menu(customerBalance, auditLog); //input is user inputting money, output is writing the audit log
 
 
 		while (true) {
@@ -120,18 +118,12 @@ public class VendingMachineCLI {
 						} else if (itemsForSale.containsKey(itemSelected)) {
 							customerBalance = customerBalance.subtract(itemsForSale.get(itemSelected).getPrice());
 							itemsForSale.get(itemSelected).setItemQuantity(itemsForSale.get(itemSelected).getItemQuantity() - 1);
-							System.out.println("Thank you for purchasing " + itemsForSale.get(itemSelected) + " for $" + String.format("%.2f", itemsForSale.get(itemSelected).getPrice()) + ", your new balance is $" + String.format("%.2f", customerBalance));
+							System.out.println("Thank you for purchasing " + itemsForSale.get(itemSelected).getName() + " for $" + String.format("%.2f", itemsForSale.get(itemSelected).getPrice()) + ", your new balance is $" + String.format("%.2f", customerBalance));
 							itemsForSale.get(itemSelected).vendingMessage();
-							AuditLog.salesMoneyLog(productSalesMessage,startingBalance, customerBalance);
-
-
-							//reduce item quantity by 1
-							//print the item name, cost, and the money remaining, and print the item message
-							//return to purchase menu
+							AuditLog.salesMoneyLog(productSalesMessage, itemSelected, startingBalance, customerBalance);
 						}
-
 					} else if (choicePurchaseMenu.equals(PURCHASE_MENU_OPTION_FINISH_TRANSACTION)) {
-//							implement finish transaction functionality
+
 						int quarterCounter = 0;
 						int dimeCounter = 0;
 						int nickelCounter = 0;
@@ -150,7 +142,7 @@ public class VendingMachineCLI {
 									nickelCounter++;
 								}
 							}
-							System.out.println("Thank you for shopping with us! \nYour change is $" + customerChange + ". Please collect your " + quarterCounter + " quarters, " + dimeCounter + " dimes, and " + nickelCounter + " nickels. \n Have a great day!");
+							System.out.println("Thank you for shopping with us! \nYour change is $" + customerChange + ". Please collect your " + quarterCounter + " quarter(s), " + dimeCounter + " dime(s), and " + nickelCounter + " nickel(s). \nHave a great day!");
 						} else if (customerBalance.doubleValue() == 0) {
 							System.out.println("Your balance is $0. Thank you for shopping with us!");
 						}
@@ -159,7 +151,7 @@ public class VendingMachineCLI {
 
 			}
 		} else if (choice.equals(MAIN_MENU_OPTION_EXIT)) {
-			// do exit
+				System.out.println("Thank you for you business, please snack with us again soon!");
 		}
 	}
 
@@ -171,140 +163,3 @@ public class VendingMachineCLI {
 			cli.run();
 		}
 	}
-
-
-//	@Override
-//	public double selectItemAndGetPrice(Item item) {
-//		if(itemInventory.hasItem(item)){
-//			currentItem = item;
-//			return currentItem.getPrice();
-//		}
-//		throw new SoldOutException("Sold Out, Please buy another item");
-//	}
-//
-//	@Override
-//	public void insertBills(BillBox bill) {
-//		currentBalance = currentBalance + bill.getBillDenomination();
-//		cashInventory.add(bill);
-//	}
-//
-//	@Override
-//	public List<Coin> refund() {
-//		List<Coin> refund = getChange(currentBalance);
-//		updateCashInventory(refund);
-//		currentBalance = 0;
-//		currentItem = null;
-//		return refund;
-//	}
-//
-//	private Item collectItem() throws NotSufficientChangeException,
-//			NotFullPaidException{
-//		if(isFullPaid()){
-//			if(hasSufficientChange()){
-//				itemInventory.deduct(currentItem);
-//				return currentItem;
-//			}
-//			throw new NotSufficientChangeException("Not Sufficient change in Inventory");
-//		}
-//		double remainingBalance = currentItem.getPrice() - currentBalance;
-//		throw new NotFullPaidException("Price not full paid, remaining : ",
-//				remainingBalance);
-//	}
-//
-//	private List<Coin> collectChange() {
-//		double changeAmount = currentBalance - currentItem.getPrice();
-//		List<Coin> change = getChange(changeAmount);
-//		updateCashInventory(change);
-//		currentBalance = 0;
-//		currentItem = null;
-//		return change;
-//	}
-//
-//	private boolean isFullPaid() {
-//		if(currentBalance >= currentItem.getPrice()){
-//			return true;
-//		}
-//		return false;
-//	}
-//
-//	private List<Coin> getChange(double amount) throws NotSufficientChangeException{
-//		List<Coin> changes = Collections.EMPTY_LIST;
-//
-//		if(amount > 0){
-//			changes = new ArrayList<Coin>();
-//			double balance = amount;
-//			while(balance > 0){
-//				if(balance >= Coin.QUARTER.getDenomination()
-//						&& cashInventory.hasItem(Coin.QUARTER)){
-//					changes.add(Coin.QUARTER);
-//					balance = balance - Coin.QUARTER.getDenomination();
-//					continue;
-//
-//				}else if(balance >= Coin.DIME.getDenomination()
-//						&& cashInventory.hasItem(Coin.DIME)) {
-//					changes.add(Coin.DIME);
-//					balance = balance - Coin.DIME.getDenomination();
-//					continue;
-//
-//				}else if(balance >= Coin.NICKLE.getDenomination()
-//						&& cashInventory.hasItem(Coin.NICKLE)) {
-//					changes.add(Coin.NICKLE);
-//					balance = balance - Coin.NICKLE.getDenomination();
-//					continue;
-//
-//				}else if(balance >= Coin.PENNY.getDenomination()
-//						&& cashInventory.hasItem(Coin.PENNY)) {
-//					changes.add(Coin.PENNY);
-//					balance = balance - Coin.PENNY.getDenomination();
-//					continue;
-//
-//				}else{
-//					throw new NotSufficientChangeException("NotSufficientChange, Please try another product");
-//				}
-//			}
-//		}
-//
-//		return changes;
-//	}
-//
-//	public void printStats(){
-//		System.out.println("Total Sales : " + totalSales);
-//		System.out.println("Current Item Inventory : " + itemInventory);
-//		System.out.println("Current Cash Inventory : " + cashInventory);
-//	}
-//
-//
-//	private boolean hasSufficientChange(){
-//		return hasSufficientChangeForAmount(currentBalance - currentItem.getPrice());
-//	}
-//
-//	private boolean hasSufficientChangeForAmount(double amount){
-//		boolean hasChange = true;
-//		try{
-//			getChange(amount);
-//		}catch(NotSufficientChangeException nsce){
-//			return hasChange = false;
-//		}
-//
-//		return hasChange;
-//	}
-//
-//	private void updateCashInventory(List change) {
-//		for(Object c : change){
-//			cashInventory.deduct(c);
-//		}
-//	}
-//
-//	public double getTotalSales(){
-//		return totalSales;
-//	}
-//
-//	@Override
-//	public void reset() {
-//		cashInventory.clear();
-//		itemInventory.clear();
-//		totalSales = 0;
-//		currentItem = null;
-//		currentBalance = 0;
-//	}
-//}
