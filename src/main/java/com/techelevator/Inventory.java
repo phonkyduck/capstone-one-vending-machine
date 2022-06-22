@@ -10,10 +10,6 @@ import java.util.TreeMap;
 
 public class Inventory {
 
-//    Map<String, String> itemName = new HashMap<>();
-//    Map<String, BigDecimal> itemPrices = new HashMap<>();
-//    Map<String, String> itemType = new HashMap<>();
-
     Map<String, VendingItems> itemsForSale = new TreeMap<>();
 
     public Map<String, VendingItems> inventoryLoader() {
@@ -40,11 +36,6 @@ public class Inventory {
                         itemsForSale.put(itemDetails[0], gum);
                     }
                 }
-
-
-//                itemName.put(itemDetails[0], itemDetails[1]);
-//                itemPrices.put(itemDetails[0], BigDecimal.valueOf(Double.parseDouble(itemDetails[2])));
-//                itemType.put(itemDetails[0], itemDetails[3]);
             }
         } catch (FileNotFoundException e) {
             System.err.println("The file does not exist.");

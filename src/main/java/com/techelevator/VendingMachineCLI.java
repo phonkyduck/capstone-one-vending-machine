@@ -123,7 +123,8 @@ public class VendingMachineCLI {
 							AuditLog.salesMoneyLog(productSalesMessage, itemSelected, startingBalance, customerBalance);
 						}
 					} else if (choicePurchaseMenu.equals(PURCHASE_MENU_OPTION_FINISH_TRANSACTION)) {
-
+						BigDecimal startingBalance = customerBalance;
+						String giveChangeMessage = dateTimeFormat.format(now) + " GIVE CHANGE: $" + String.format("%.2f", startingBalance) + " $" + String.format("%.2f", customerBalance);
 						int quarterCounter = 0;
 						int dimeCounter = 0;
 						int nickelCounter = 0;
@@ -146,6 +147,7 @@ public class VendingMachineCLI {
 						} else if (customerBalance.doubleValue() == 0) {
 							System.out.println("Your balance is $0. Thank you for shopping with us!");
 						}
+						AuditLog.giveChangeLog(giveChangeMessage, startingBalance, customerBalance);
 						break;
 					}
 
